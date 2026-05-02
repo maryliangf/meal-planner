@@ -85,6 +85,13 @@ function NavIcon({ name }) {
   return null
 }
 
+function formatFilterSummary(values) {
+  if (!values || values.length === 0) return 'Any'
+  if (values.length === 1) return values[0]
+  if (values.length === 2) return values.join(', ')
+  return `${values[0]} +${values.length - 1}`
+}
+
 function ensureTemplateForRecipe(state, recipe, mealType) {
   const key = makeRecipeKey({
     catalogId: recipe.id,
@@ -132,8 +139,8 @@ function App() {
   const [linkError, setLinkError] = useState('')
   const [ownRecipeOpen, setOwnRecipeOpen] = useState(false)
   const [discoverSheet, setDiscoverSheet] = useState(null)
-  const [sheetCuisinePick, setSheetCuisinePick] = useState(null)
-  const [sheetDietPick, setSheetDietPick] = useState(null)
+  const [sheetCuisinePick, setSheetCuisinePick] = useState([])
+  const [sheetDietPick, setSheetDietPick] = useState([])
   const [discoverDetailRecipe, setDiscoverDetailRecipe] = useState(null)
   const [pantryListQuery, setPantryListQuery] = useState('')
   const [discoverToast, setDiscoverToast] = useState(null)
@@ -161,11 +168,38 @@ function App() {
     [],
   )
 
-  const discoverPrefs = state.discoverPrefs ?? {
-    cuisine: null,
-    diet: null,
-    usePantryBoost: false,
-  }
+  const availableCuisines = useMemo(() => {
+    const set = new Set()
+    for (const recipe of browseRecipes) {
+      if (recipe.cuisine) set.add(recipe.cuisine)
+    }
+    return DISCOVER_CUISINES.filter((c) => set.has(c))
+  }, [browseRecipes])
+
+  const availableDiets = useMemo(() => {
+    const set = new Set()
+    for (const recipe of browseRecipes) {
+      for (const tag of recipe.dietTags ?? []) set.add(tag)
+    }
+    return DISCOVER_DIETS.filter((d) => set.has(d))
+  }, [browseRecipes])
+
+  const discoverPrefs = useMemo(() => {
+    const raw = state.discoverPrefs ?? {}
+    return {
+      cuisines: Array.isArray(raw.cuisines)
+        ? raw.cuisines
+        : raw.cuisine
+          ? [raw.cuisine]
+          : [],
+      diets: Array.isArray(raw.diets)
+        ? raw.diets
+        : raw.diet
+          ? [raw.diet]
+          : [],
+      usePantryBoost: Boolean(raw.usePantryBoost),
+    }
+  }, [state.discoverPrefs])
 
   /** Map of recipeKey -> plannedMealId for meals planned on the current assignment date.
    *  Lets the Discover `+` button toggle: show ✓ + remove if already assigned. */
@@ -193,10 +227,15 @@ function App() {
           ingredient.name.toLowerCase().includes(query),
         )
       if (!mealTypeMatches || !queryMatches) return false
-      if (discoverPrefs.cuisine && recipe.cuisine !== discoverPrefs.cuisine) return false
       if (
-        discoverPrefs.diet &&
-        !(recipe.dietTags ?? []).includes(discoverPrefs.diet)
+        discoverPrefs.cuisines.length > 0 &&
+        !discoverPrefs.cuisines.includes(recipe.cuisine)
+      ) {
+        return false
+      }
+      if (
+        discoverPrefs.diets.length > 0 &&
+        !discoverPrefs.diets.some((d) => (recipe.dietTags ?? []).includes(d))
       ) {
         return false
       }
@@ -215,8 +254,8 @@ function App() {
     browseRecipes,
     browseQuery,
     mealFilter,
-    discoverPrefs.cuisine,
-    discoverPrefs.diet,
+    discoverPrefs.cuisines,
+    discoverPrefs.diets,
     discoverPrefs.usePantryBoost,
     state.pantryItems,
   ])
@@ -287,8 +326,8 @@ function App() {
     updateState((current) => ({
       ...current,
       discoverPrefs: {
-        cuisine: null,
-        diet: null,
+        cuisines: [],
+        diets: [],
         usePantryBoost: false,
         ...(current.discoverPrefs ?? {}),
         ...patch,
@@ -1010,9 +1049,9 @@ function App() {
                 <div className="discover-filter-row">
                   <button
                     type="button"
-                    className={`discover-filter-btn ${discoverPrefs.cuisine ? 'discover-filter-btn--on' : ''}`}
+                    className={`discover-filter-btn ${discoverPrefs.cuisines.length > 0 ? 'discover-filter-btn--on' : ''}`}
                     onClick={() => {
-                      setSheetCuisinePick(discoverPrefs.cuisine)
+                      setSheetCuisinePick(discoverPrefs.cuisines)
                       setDiscoverSheet('cuisine')
                     }}
                   >
@@ -1021,20 +1060,20 @@ function App() {
                       <line x1="2" y1="12" x2="22" y2="12" />
                       <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
                     </svg>
-                    Cuisine: {discoverPrefs.cuisine ?? 'Any'}
+                    Cuisine: {formatFilterSummary(discoverPrefs.cuisines)}
                   </button>
                   <button
                     type="button"
-                    className={`discover-filter-btn ${discoverPrefs.diet ? 'discover-filter-btn--on' : ''}`}
+                    className={`discover-filter-btn ${discoverPrefs.diets.length > 0 ? 'discover-filter-btn--on' : ''}`}
                     onClick={() => {
-                      setSheetDietPick(discoverPrefs.diet)
+                      setSheetDietPick(discoverPrefs.diets)
                       setDiscoverSheet('diet')
                     }}
                   >
                     <svg viewBox="0 0 24 24" className="discover-filter-icon" aria-hidden>
                       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                     </svg>
-                    Diet: {discoverPrefs.diet ?? 'Any'}
+                    Diet: {formatFilterSummary(discoverPrefs.diets)}
                   </button>
                 </div>
                 <button
@@ -1144,7 +1183,24 @@ function App() {
                                 : `Add to ${discoverDateLabel}`
                             }
                           >
-                            <span>{isAssigned ? '✓' : '+'}</span>
+                            <span className="discover-card-addbtn-glyph" aria-hidden>
+                              {isAssigned ? (
+                                <>
+                                  <svg className="discover-card-addbtn-icon discover-card-addbtn-icon--check" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                    <polyline points="5 12 10 17 19 8" />
+                                  </svg>
+                                  <svg className="discover-card-addbtn-icon discover-card-addbtn-icon--x" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                    <line x1="6" y1="6" x2="18" y2="18" />
+                                    <line x1="18" y1="6" x2="6" y2="18" />
+                                  </svg>
+                                </>
+                              ) : (
+                                <svg className="discover-card-addbtn-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                  <line x1="12" y1="5" x2="12" y2="19" />
+                                  <line x1="5" y1="12" x2="19" y2="12" />
+                                </svg>
+                              )}
+                            </span>
                           </button>
                         </div>
                       </article>
@@ -1174,30 +1230,40 @@ function App() {
                   <h3 id="discover-sheet-cuisine-title" className="discover-sheet-title">
                     Cuisine
                   </h3>
+                  <p className="discover-sheet-sub">
+                    Pick any number to match. Leave empty for all cuisines.
+                  </p>
                   <div className="discover-option-grid">
                     <button
                       type="button"
-                      className={`discover-opt ${sheetCuisinePick == null ? 'discover-opt--on' : ''}`}
-                      onClick={() => setSheetCuisinePick(null)}
+                      className={`discover-opt ${sheetCuisinePick.length === 0 ? 'discover-opt--on' : ''}`}
+                      onClick={() => setSheetCuisinePick([])}
                     >
                       Any
                     </button>
-                    {DISCOVER_CUISINES.map((c) => (
-                      <button
-                        key={c}
-                        type="button"
-                        className={`discover-opt ${sheetCuisinePick === c ? 'discover-opt--on' : ''}`}
-                        onClick={() => setSheetCuisinePick(c)}
-                      >
-                        {c}
-                      </button>
-                    ))}
+                    {availableCuisines.map((c) => {
+                      const on = sheetCuisinePick.includes(c)
+                      return (
+                        <button
+                          key={c}
+                          type="button"
+                          className={`discover-opt ${on ? 'discover-opt--on' : ''}`}
+                          onClick={() =>
+                            setSheetCuisinePick((prev) =>
+                              prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c],
+                            )
+                          }
+                        >
+                          {c}
+                        </button>
+                      )
+                    })}
                   </div>
                   <button
                     type="button"
                     className="discover-sheet-apply"
                     onClick={() => {
-                      updateDiscoverPrefs({ cuisine: sheetCuisinePick })
+                      updateDiscoverPrefs({ cuisines: sheetCuisinePick })
                       setDiscoverSheet(null)
                     }}
                   >
@@ -1225,32 +1291,39 @@ function App() {
                     Dietary preferences
                   </h3>
                   <p className="discover-sheet-sub">
-                    Filter catalog recipes. Pick one tag to match (e.g. Vegetarian).
+                    Pick any number of tags. Recipes matching at least one will show.
                   </p>
                   <div className="discover-option-grid">
                     <button
                       type="button"
-                      className={`discover-opt ${sheetDietPick == null ? 'discover-opt--on' : ''}`}
-                      onClick={() => setSheetDietPick(null)}
+                      className={`discover-opt ${sheetDietPick.length === 0 ? 'discover-opt--on' : ''}`}
+                      onClick={() => setSheetDietPick([])}
                     >
                       Any
                     </button>
-                    {DISCOVER_DIETS.map((d) => (
-                      <button
-                        key={d}
-                        type="button"
-                        className={`discover-opt ${sheetDietPick === d ? 'discover-opt--on' : ''}`}
-                        onClick={() => setSheetDietPick(d)}
-                      >
-                        {d}
-                      </button>
-                    ))}
+                    {availableDiets.map((d) => {
+                      const on = sheetDietPick.includes(d)
+                      return (
+                        <button
+                          key={d}
+                          type="button"
+                          className={`discover-opt ${on ? 'discover-opt--on' : ''}`}
+                          onClick={() =>
+                            setSheetDietPick((prev) =>
+                              prev.includes(d) ? prev.filter((x) => x !== d) : [...prev, d],
+                            )
+                          }
+                        >
+                          {d}
+                        </button>
+                      )
+                    })}
                   </div>
                   <button
                     type="button"
                     className="discover-sheet-apply"
                     onClick={() => {
-                      updateDiscoverPrefs({ diet: sheetDietPick })
+                      updateDiscoverPrefs({ diets: sheetDietPick })
                       setDiscoverSheet(null)
                     }}
                   >

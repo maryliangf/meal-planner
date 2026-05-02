@@ -80,8 +80,8 @@ export function createPlannerState(sections) {
     pantryItems: {},
     pantryItemMeta: {},
     discoverPrefs: {
-      cuisine: null,
-      diet: null,
+      cuisines: [],
+      diets: [],
       usePantryBoost: false,
     },
     storeSections: sections,
@@ -134,11 +134,19 @@ export function loadPlannerState() {
       ]),
     )
 
+    const rawPrefs = parsed.discoverPrefs ?? {}
     const discoverPrefs = {
-      cuisine: null,
-      diet: null,
-      usePantryBoost: false,
-      ...(parsed.discoverPrefs ?? {}),
+      cuisines: Array.isArray(rawPrefs.cuisines)
+        ? rawPrefs.cuisines
+        : rawPrefs.cuisine
+          ? [rawPrefs.cuisine]
+          : [],
+      diets: Array.isArray(rawPrefs.diets)
+        ? rawPrefs.diets
+        : rawPrefs.diet
+          ? [rawPrefs.diet]
+          : [],
+      usePantryBoost: Boolean(rawPrefs.usePantryBoost),
     }
 
     const pantryItemMeta = parsed.pantryItemMeta ?? {}
