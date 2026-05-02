@@ -1,0 +1,320 @@
+<style>
+  .direction-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+    margin-top: 24px;
+  }
+
+  .planner-card {
+    border: 1px solid rgba(94, 68, 45, 0.18);
+    border-radius: 20px;
+    background: #f8f1df;
+    box-shadow: 0 18px 50px rgba(71, 45, 20, 0.08);
+    overflow: hidden;
+  }
+
+  .planner-preview {
+    height: 420px;
+    padding: 20px;
+    position: relative;
+    color: #3f2f22;
+  }
+
+  .paper {
+    background:
+      linear-gradient(to right, transparent 0 56px, rgba(189, 54, 47, 0.18) 56px 58px, transparent 58px),
+      repeating-linear-gradient(to bottom, #fbf6ea 0 31px, #d9d1bf 31px 32px);
+  }
+
+  .hybrid {
+    background:
+      radial-gradient(circle at top left, rgba(228, 182, 120, 0.32), transparent 32%),
+      linear-gradient(180deg, #f7eed8 0%, #f4e8ce 100%);
+  }
+
+  .modern {
+    background:
+      linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.6)),
+      linear-gradient(135deg, #efe4c5, #d9c7a4);
+  }
+
+  .binder-holes {
+    position: absolute;
+    left: 14px;
+    top: 52px;
+    display: grid;
+    gap: 28px;
+  }
+
+  .binder-holes span {
+    width: 12px;
+    height: 12px;
+    border-radius: 999px;
+    background: rgba(92, 70, 49, 0.2);
+  }
+
+  .page-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-left: 52px;
+    margin-bottom: 18px;
+  }
+
+  .page-title {
+    font-size: 1.6rem;
+    margin: 0;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  .page-date {
+    font-size: 0.9rem;
+    opacity: 0.75;
+  }
+
+  .section-label {
+    margin: 18px 0 8px 52px;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    opacity: 0.68;
+  }
+
+  .line-list {
+    margin-left: 52px;
+    display: grid;
+    gap: 8px;
+  }
+
+  .task-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 24px;
+  }
+
+  .checkbox {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(63, 47, 34, 0.58);
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.55);
+    flex: none;
+  }
+
+  .text-line {
+    height: 10px;
+    border-radius: 999px;
+    background: rgba(91, 71, 51, 0.2);
+  }
+
+  .w-60 { width: 60%; }
+  .w-72 { width: 72%; }
+  .w-48 { width: 48%; }
+  .w-36 { width: 36%; }
+
+  .priority-chip {
+    margin-left: auto;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    background: rgba(159, 74, 42, 0.12);
+    color: #834428;
+  }
+
+  .split-columns {
+    display: grid;
+    grid-template-columns: 1.3fr 0.9fr;
+    gap: 16px;
+    margin-top: 16px;
+  }
+
+  .panel {
+    background: rgba(255,255,255,0.5);
+    border: 1px solid rgba(80, 59, 39, 0.12);
+    border-radius: 16px;
+    padding: 14px;
+  }
+
+  .calendar-strip {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    margin-left: 52px;
+    margin-top: 16px;
+  }
+
+  .day-pill {
+    background: rgba(255,255,255,0.55);
+    border: 1px solid rgba(82, 61, 42, 0.1);
+    border-radius: 12px;
+    padding: 10px 6px;
+    text-align: center;
+    font-size: 0.75rem;
+  }
+
+  .day-pill.active {
+    background: #9b5b38;
+    color: #fff7ef;
+  }
+
+  .meta {
+    display: grid;
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  .meta-row {
+    height: 34px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.58);
+    border: 1px solid rgba(80, 59, 39, 0.1);
+  }
+
+  .card-copy {
+    padding: 16px 18px 18px;
+    background: rgba(255, 251, 243, 0.88);
+    border-top: 1px solid rgba(94, 68, 45, 0.1);
+  }
+
+  .card-copy h3 {
+    margin-bottom: 8px;
+  }
+
+  .tag {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    background: #efe3c9;
+    color: #6b4a2f;
+  }
+
+  @media (max-width: 1100px) {
+    .direction-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<h2>Three directions for your planner app</h2>
+<p class="subtitle">These combine the same core idea in different proportions: paper feeling, digital utility, and modern structure.</p>
+
+<div class="cards direction-grid">
+  <div class="card planner-card" data-choice="paper-first" onclick="toggleSelect(this)">
+    <div class="planner-preview paper">
+      <div class="binder-holes"><span></span><span></span><span></span><span></span></div>
+      <div class="page-top">
+        <h3 class="page-title">Thursday Plan</h3>
+        <div class="page-date">Apr 22</div>
+      </div>
+      <div class="section-label">Must do</div>
+      <div class="line-list">
+        <div class="task-row"><div class="checkbox"></div><div class="text-line w-72"></div><div class="priority-chip">high</div></div>
+        <div class="task-row"><div class="checkbox"></div><div class="text-line w-48"></div></div>
+        <div class="task-row"><div class="checkbox"></div><div class="text-line w-60"></div></div>
+      </div>
+      <div class="section-label">Notes</div>
+      <div class="line-list">
+        <div class="task-row"><div class="text-line w-72"></div></div>
+        <div class="task-row"><div class="text-line w-60"></div></div>
+      </div>
+      <div class="section-label">Tomorrow</div>
+      <div class="line-list">
+        <div class="task-row"><div class="checkbox"></div><div class="text-line w-36"></div></div>
+      </div>
+    </div>
+    <div class="card-copy">
+      <h3>A. Paper First</h3>
+      <p>The app behaves almost like a real planner page. Warm, tactile, simple, calming.</p>
+      <span class="tag">best for ritual + nostalgia</span>
+    </div>
+  </div>
+
+  <div class="card planner-card" data-choice="balanced-hybrid" onclick="toggleSelect(this)">
+    <div class="planner-preview hybrid">
+      <div class="page-top" style="margin-left:0">
+        <h3 class="page-title">Today</h3>
+        <div class="page-date">Thursday, Apr 22</div>
+      </div>
+      <div class="calendar-strip">
+        <div class="day-pill">M</div>
+        <div class="day-pill">T</div>
+        <div class="day-pill active">W</div>
+        <div class="day-pill">T</div>
+        <div class="day-pill">F</div>
+        <div class="day-pill">S</div>
+        <div class="day-pill">S</div>
+      </div>
+      <div class="split-columns">
+        <div class="panel">
+          <div class="section-label" style="margin-left:0;margin-top:0">Focus list</div>
+          <div class="line-list" style="margin-left:0">
+            <div class="task-row"><div class="checkbox"></div><div class="text-line w-60"></div><div class="priority-chip">high</div></div>
+            <div class="task-row"><div class="checkbox"></div><div class="text-line w-72"></div></div>
+            <div class="task-row"><div class="checkbox"></div><div class="text-line w-48"></div></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="section-label" style="margin-left:0;margin-top:0">Quick view</div>
+          <div class="meta">
+            <div class="meta-row"></div>
+            <div class="meta-row"></div>
+            <div class="meta-row"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-copy">
+      <h3>B. Balanced Hybrid</h3>
+      <p>A planner page at heart, but with clearer panels for calendar, priority, and fast scanning.</p>
+      <span class="tag">best overall product balance</span>
+    </div>
+  </div>
+
+  <div class="card planner-card" data-choice="app-forward" onclick="toggleSelect(this)">
+    <div class="planner-preview modern">
+      <div class="page-top" style="margin-left:0">
+        <h3 class="page-title">Plan Board</h3>
+        <div class="page-date">Today + Week</div>
+      </div>
+      <div class="split-columns" style="grid-template-columns:0.95fr 1.25fr">
+        <div class="panel">
+          <div class="section-label" style="margin-left:0;margin-top:0">Groups</div>
+          <div class="meta">
+            <div class="meta-row"></div>
+            <div class="meta-row"></div>
+            <div class="meta-row"></div>
+            <div class="meta-row"></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="section-label" style="margin-left:0;margin-top:0">Today</div>
+          <div class="line-list" style="margin-left:0">
+            <div class="task-row"><div class="checkbox"></div><div class="text-line w-72"></div><div class="priority-chip">high</div></div>
+            <div class="task-row"><div class="checkbox"></div><div class="text-line w-48"></div><div class="priority-chip">med</div></div>
+            <div class="task-row"><div class="checkbox"></div><div class="text-line w-60"></div><div class="priority-chip">low</div></div>
+          </div>
+          <div class="section-label" style="margin-left:0">Week strip</div>
+          <div class="calendar-strip" style="margin-left:0">
+            <div class="day-pill active">22</div>
+            <div class="day-pill">23</div>
+            <div class="day-pill">24</div>
+            <div class="day-pill">25</div>
+            <div class="day-pill">26</div>
+            <div class="day-pill">27</div>
+            <div class="day-pill">28</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-copy">
+      <h3>C. App Forward</h3>
+      <p>A clean planner-inspired productivity app with stronger digital controls and lighter nostalgia.</p>
+      <span class="tag">best for flexibility + scale</span>
+    </div>
+  </div>
+</div>

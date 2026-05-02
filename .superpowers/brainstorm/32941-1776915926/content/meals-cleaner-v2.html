@@ -1,0 +1,304 @@
+<style>
+  .compare-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+    margin-top: 24px;
+  }
+
+  .option-shell {
+    border: 1px solid rgba(92, 68, 45, 0.14);
+    border-radius: 22px;
+    overflow: hidden;
+    background: linear-gradient(180deg, #f8efda, #f3e5c4);
+    box-shadow: 0 18px 44px rgba(68, 44, 22, 0.08);
+  }
+
+  .pane-preview {
+    min-height: 470px;
+    padding: 18px;
+    color: #4b3829;
+  }
+
+  .topline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .topline h3 {
+    margin: 0;
+    font-size: 1.08rem;
+  }
+
+  .tiny-badge {
+    padding: 5px 9px;
+    border-radius: 999px;
+    background: rgba(154, 91, 56, 0.12);
+    font-size: 0.74rem;
+    color: #7b4b2f;
+  }
+
+  .selected-day {
+    border-radius: 18px;
+    background: rgba(255, 251, 242, 0.75);
+    border: 1px solid rgba(92, 68, 45, 0.08);
+    padding: 14px;
+    margin-bottom: 16px;
+  }
+
+  .selected-day strong {
+    display: block;
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #7a5c43;
+    margin-bottom: 8px;
+  }
+
+  .slot-list {
+    display: grid;
+    gap: 10px;
+  }
+
+  .slot-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border-radius: 14px;
+    padding: 12px 14px;
+    background: rgba(255,255,255,0.7);
+    border: 1px solid rgba(92, 68, 45, 0.08);
+  }
+
+  .slot-row.active {
+    outline: 2px solid rgba(154, 91, 56, 0.55);
+    background: #fffaf0;
+  }
+
+  .slot-name {
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #7a5c43;
+  }
+
+  .meal-label {
+    font-weight: 600;
+    text-align: right;
+  }
+
+  .picker-box,
+  .library-box,
+  .drawer-box {
+    border-top: 1px dashed rgba(92, 68, 45, 0.18);
+    margin-top: 16px;
+    padding-top: 16px;
+  }
+
+  .section-title {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #7a5c43;
+    margin-bottom: 10px;
+  }
+
+  .pill-list {
+    display: grid;
+    gap: 9px;
+  }
+
+  .meal-pill {
+    border-radius: 13px;
+    padding: 11px 13px;
+    background: rgba(255,255,255,0.7);
+    border: 1px solid rgba(92, 68, 45, 0.08);
+  }
+
+  .meal-pill.active {
+    background: #efe0bf;
+    border-color: rgba(154, 91, 56, 0.22);
+  }
+
+  .collapsed-line {
+    height: 16px;
+    border-radius: 999px;
+    background: rgba(81, 60, 42, 0.14);
+    margin-bottom: 10px;
+  }
+
+  .actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .button {
+    padding: 9px 12px;
+    border-radius: 12px;
+    background: #9a5b38;
+    color: #fff8f1;
+    font-size: 0.82rem;
+  }
+
+  .button.secondary {
+    background: rgba(154, 91, 56, 0.12);
+    color: #7b4b2f;
+  }
+
+  .copy {
+    padding: 16px 18px 18px;
+    background: rgba(255, 251, 243, 0.88);
+    border-top: 1px solid rgba(92, 68, 45, 0.08);
+  }
+
+  .copy h3 {
+    margin-bottom: 8px;
+  }
+
+  .tag {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    background: #efe3c9;
+    color: #6b4a2f;
+  }
+
+  @media (max-width: 1100px) {
+    .compare-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<h2>Cleaner Meals View</h2>
+<p class="subtitle">All three keep the monthly calendar on the left. The only thing changing here is how the meals window behaves once a date is selected.</p>
+
+<div class="cards compare-grid">
+  <div class="card option-shell" data-choice="minimal-editor" onclick="toggleSelect(this)">
+    <div class="pane-preview">
+      <div class="topline">
+        <h3>Meals</h3>
+        <span class="tiny-badge">minimal</span>
+      </div>
+      <div class="selected-day">
+        <strong>Wed Apr 9</strong>
+        <div class="slot-list">
+          <div class="slot-row">
+            <span class="slot-name">Breakfast</span>
+            <span class="meal-label">Greek yogurt bowl</span>
+          </div>
+          <div class="slot-row">
+            <span class="slot-name">Lunch</span>
+            <span class="meal-label">Pesto chicken wrap</span>
+          </div>
+          <div class="slot-row">
+            <span class="slot-name">Dinner</span>
+            <span class="meal-label">Salmon + greens</span>
+          </div>
+        </div>
+      </div>
+      <div class="drawer-box">
+        <div class="section-title">Add or change meal</div>
+        <div class="collapsed-line" style="width:72%"></div>
+        <div class="collapsed-line" style="width:54%"></div>
+        <div class="actions">
+          <div class="button">Choose Meal</div>
+          <div class="button secondary">Clear</div>
+        </div>
+      </div>
+    </div>
+    <div class="copy">
+      <h3>A. Minimal Editor</h3>
+      <p>Only the selected date and meal slots are visible. The meal picker stays mostly hidden until someone edits a slot.</p>
+      <span class="tag">calmest visual design</span>
+    </div>
+  </div>
+
+  <div class="card option-shell" data-choice="balanced-slot-picker" onclick="toggleSelect(this)">
+    <div class="pane-preview">
+      <div class="topline">
+        <h3>Meals</h3>
+        <span class="tiny-badge">recommended</span>
+      </div>
+      <div class="selected-day">
+        <strong>Wed Apr 9</strong>
+        <div class="slot-list">
+          <div class="slot-row">
+            <span class="slot-name">Breakfast</span>
+            <span class="meal-label">Greek yogurt bowl</span>
+          </div>
+          <div class="slot-row active">
+            <span class="slot-name">Lunch</span>
+            <span class="meal-label">Pesto chicken wrap</span>
+          </div>
+          <div class="slot-row">
+            <span class="slot-name">Dinner</span>
+            <span class="meal-label">Salmon + greens</span>
+          </div>
+        </div>
+      </div>
+      <div class="picker-box">
+        <div class="section-title">Choose meal for lunch</div>
+        <div class="pill-list">
+          <div class="meal-pill active">Pesto chicken wrap</div>
+          <div class="meal-pill">Turkey sandwich set</div>
+          <div class="meal-pill">Rice bowl</div>
+          <div class="meal-pill">Pasta primavera</div>
+        </div>
+      </div>
+    </div>
+    <div class="copy">
+      <h3>B. Slot + Picker</h3>
+      <p>Select a slot first, then see the meal options for that slot right underneath. Clear and easy to learn.</p>
+      <span class="tag">best balance of clarity + speed</span>
+    </div>
+  </div>
+
+  <div class="card option-shell" data-choice="library-first" onclick="toggleSelect(this)">
+    <div class="pane-preview">
+      <div class="topline">
+        <h3>Meals</h3>
+        <span class="tiny-badge">power user</span>
+      </div>
+      <div class="selected-day">
+        <strong>Wed Apr 9</strong>
+        <div class="slot-list">
+          <div class="slot-row active">
+            <span class="slot-name">Breakfast</span>
+            <span class="meal-label">Tap to assign</span>
+          </div>
+          <div class="slot-row">
+            <span class="slot-name">Lunch</span>
+            <span class="meal-label">Pesto chicken wrap</span>
+          </div>
+          <div class="slot-row">
+            <span class="slot-name">Dinner</span>
+            <span class="meal-label">Salmon + greens</span>
+          </div>
+        </div>
+      </div>
+      <div class="library-box">
+        <div class="section-title">Meal library</div>
+        <div class="pill-list">
+          <div class="meal-pill">Greek yogurt bowl</div>
+          <div class="meal-pill">Egg toast plate</div>
+          <div class="meal-pill">Berry oatmeal</div>
+          <div class="meal-pill">Protein smoothie</div>
+          <div class="meal-pill">Breakfast burrito</div>
+        </div>
+      </div>
+    </div>
+    <div class="copy">
+      <h3>C. Library First</h3>
+      <p>The meal library is always visible, which is faster for heavy planners but visually busier.</p>
+      <span class="tag">best if reuse is the main goal</span>
+    </div>
+  </div>
+</div>

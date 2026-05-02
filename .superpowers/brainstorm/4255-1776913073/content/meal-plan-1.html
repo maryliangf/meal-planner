@@ -1,0 +1,343 @@
+<style>
+  .meal-layout {
+    display: grid;
+    grid-template-columns: 1.35fr 0.95fr;
+    gap: 24px;
+    margin-top: 24px;
+    align-items: start;
+  }
+
+  .surface {
+    background: linear-gradient(180deg, #fbf3df, #f4e6c7);
+    border: 1px solid rgba(92, 68, 45, 0.14);
+    border-radius: 24px;
+    box-shadow: 0 18px 50px rgba(74, 49, 24, 0.08);
+    overflow: hidden;
+  }
+
+  .surface-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 20px 12px;
+    border-bottom: 1px solid rgba(92, 68, 45, 0.08);
+    background: rgba(255, 251, 241, 0.65);
+  }
+
+  .surface-header h3 {
+    margin: 0;
+    font-size: 1.15rem;
+  }
+
+  .month-nav {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-size: 0.86rem;
+    color: #6b5037;
+  }
+
+  .chip {
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(138, 96, 58, 0.1);
+  }
+
+  .calendar-wrap {
+    padding: 18px 18px 22px;
+  }
+
+  .weekday-row,
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .weekday {
+    text-align: center;
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #7b6148;
+    padding-bottom: 4px;
+  }
+
+  .day-cell {
+    min-height: 108px;
+    border-radius: 18px;
+    background:
+      linear-gradient(to right, transparent 0 12px, rgba(191, 71, 55, 0.13) 12px 14px, transparent 14px),
+      repeating-linear-gradient(to bottom, rgba(255,255,255,0.78) 0 25px, rgba(214,205,187,0.9) 25px 26px);
+    border: 1px solid rgba(90, 68, 45, 0.08);
+    padding: 10px 10px 10px 18px;
+    position: relative;
+  }
+
+  .day-cell.muted {
+    opacity: 0.45;
+  }
+
+  .day-cell.active {
+    outline: 2px solid #9a5b38;
+    box-shadow: 0 10px 28px rgba(154, 91, 56, 0.18);
+  }
+
+  .day-number {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #493526;
+    margin-bottom: 8px;
+  }
+
+  .meal-note {
+    height: 9px;
+    border-radius: 999px;
+    background: rgba(84, 63, 44, 0.16);
+    margin-bottom: 7px;
+  }
+
+  .meal-note.short { width: 58%; }
+  .meal-note.mid { width: 72%; }
+  .meal-note.long { width: 86%; }
+
+  .selected-pane {
+    padding: 18px;
+  }
+
+  .selected-card {
+    border-radius: 20px;
+    background: rgba(255, 252, 245, 0.8);
+    border: 1px solid rgba(92, 68, 45, 0.08);
+    padding: 18px;
+  }
+
+  .date-badge {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: #9a5b38;
+    color: #fff7ef;
+    font-size: 0.76rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .meal-list {
+    display: grid;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .meal-slot {
+    display: grid;
+    gap: 6px;
+    padding: 12px 14px;
+    border-radius: 16px;
+    background: #fffaf0;
+    border: 1px solid rgba(92, 68, 45, 0.08);
+  }
+
+  .meal-slot strong {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #7c5c42;
+  }
+
+  .meal-choice {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .meal-token {
+    padding: 8px 10px;
+    border-radius: 12px;
+    background: #f1e3c3;
+    color: #5b412d;
+  }
+
+  .meals-window {
+    margin-top: 18px;
+    border-top: 1px dashed rgba(92, 68, 45, 0.18);
+    padding-top: 18px;
+  }
+
+  .meal-options {
+    display: grid;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .meal-pill {
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(92, 68, 45, 0.08);
+  }
+
+  .guidance {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .guidance .panel {
+    border-radius: 16px;
+    background: rgba(255,255,255,0.62);
+    border: 1px solid rgba(92, 68, 45, 0.08);
+    padding: 14px;
+  }
+
+  .guidance h4 {
+    margin: 0 0 8px;
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 1100px) {
+    .meal-layout,
+    .guidance {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<h2>Meal planner direction</h2>
+<p class="subtitle">This version treats the plan window like a monthly notebook calendar. Clicking a date reveals that day's meals, and the actual meal selection happens only inside the meals window.</p>
+
+<div class="mockup">
+  <div class="mockup-header">Planner concept: calendar-first planning with a separate meal picker</div>
+  <div class="mockup-body">
+    <div class="meal-layout">
+      <div class="surface">
+        <div class="surface-header">
+          <h3>Plan Window</h3>
+          <div class="month-nav">
+            <span class="chip">April 2026</span>
+            <span class="chip">Month View</span>
+          </div>
+        </div>
+        <div class="calendar-wrap">
+          <div class="weekday-row">
+            <div class="weekday">Sun</div>
+            <div class="weekday">Mon</div>
+            <div class="weekday">Tue</div>
+            <div class="weekday">Wed</div>
+            <div class="weekday">Thu</div>
+            <div class="weekday">Fri</div>
+            <div class="weekday">Sat</div>
+          </div>
+          <div class="calendar-grid">
+            <div class="day-cell muted"><div class="day-number">29</div></div>
+            <div class="day-cell muted"><div class="day-number">30</div></div>
+            <div class="day-cell"><div class="day-number">1</div><div class="meal-note short"></div></div>
+            <div class="day-cell"><div class="day-number">2</div><div class="meal-note mid"></div><div class="meal-note short"></div></div>
+            <div class="day-cell"><div class="day-number">3</div></div>
+            <div class="day-cell"><div class="day-number">4</div><div class="meal-note long"></div></div>
+            <div class="day-cell"><div class="day-number">5</div></div>
+
+            <div class="day-cell"><div class="day-number">6</div><div class="meal-note mid"></div></div>
+            <div class="day-cell"><div class="day-number">7</div></div>
+            <div class="day-cell"><div class="day-number">8</div><div class="meal-note short"></div><div class="meal-note short"></div></div>
+            <div class="day-cell active"><div class="day-number">9</div><div class="meal-note long"></div><div class="meal-note mid"></div></div>
+            <div class="day-cell"><div class="day-number">10</div></div>
+            <div class="day-cell"><div class="day-number">11</div><div class="meal-note short"></div></div>
+            <div class="day-cell"><div class="day-number">12</div></div>
+
+            <div class="day-cell"><div class="day-number">13</div></div>
+            <div class="day-cell"><div class="day-number">14</div><div class="meal-note mid"></div></div>
+            <div class="day-cell"><div class="day-number">15</div></div>
+            <div class="day-cell"><div class="day-number">16</div><div class="meal-note short"></div></div>
+            <div class="day-cell"><div class="day-number">17</div></div>
+            <div class="day-cell"><div class="day-number">18</div></div>
+            <div class="day-cell"><div class="day-number">19</div><div class="meal-note long"></div></div>
+
+            <div class="day-cell"><div class="day-number">20</div></div>
+            <div class="day-cell"><div class="day-number">21</div></div>
+            <div class="day-cell"><div class="day-number">22</div><div class="meal-note short"></div></div>
+            <div class="day-cell"><div class="day-number">23</div></div>
+            <div class="day-cell"><div class="day-number">24</div><div class="meal-note mid"></div></div>
+            <div class="day-cell"><div class="day-number">25</div></div>
+            <div class="day-cell"><div class="day-number">26</div></div>
+
+            <div class="day-cell"><div class="day-number">27</div></div>
+            <div class="day-cell"><div class="day-number">28</div></div>
+            <div class="day-cell"><div class="day-number">29</div></div>
+            <div class="day-cell"><div class="day-number">30</div></div>
+            <div class="day-cell muted"><div class="day-number">1</div></div>
+            <div class="day-cell muted"><div class="day-number">2</div></div>
+            <div class="day-cell muted"><div class="day-number">3</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="surface">
+        <div class="surface-header">
+          <h3>Meals Window</h3>
+          <div class="month-nav">
+            <span class="chip">Selected Day</span>
+          </div>
+        </div>
+        <div class="selected-pane">
+          <div class="selected-card">
+            <span class="date-badge">Wed Apr 9</span>
+            <h3 style="margin:14px 0 6px">Meals planned for this day</h3>
+            <p style="margin:0;color:#6d5641">The calendar only chooses the date. Meal assignment happens here.</p>
+
+            <div class="meal-list">
+              <div class="meal-slot">
+                <strong>Breakfast</strong>
+                <div class="meal-choice">
+                  <span class="meal-token">Greek yogurt bowl</span>
+                  <span>edit</span>
+                </div>
+              </div>
+              <div class="meal-slot">
+                <strong>Lunch</strong>
+                <div class="meal-choice">
+                  <span class="meal-token">Pesto chicken wrap</span>
+                  <span>edit</span>
+                </div>
+              </div>
+              <div class="meal-slot">
+                <strong>Dinner</strong>
+                <div class="meal-choice">
+                  <span class="meal-token">Salmon + rice + greens</span>
+                  <span>edit</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="meals-window">
+              <strong style="font-size:0.8rem;letter-spacing:0.12em;text-transform:uppercase;color:#7c5c42;">Meal library</strong>
+              <div class="meal-options">
+                <div class="meal-pill">Turkey sandwich set</div>
+                <div class="meal-pill">Pasta primavera</div>
+                <div class="meal-pill">Taco bowls</div>
+                <div class="meal-pill">Veggie stir-fry</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="guidance">
+      <div class="panel">
+        <h4>What works well</h4>
+        <p>Very clear separation of roles: the calendar chooses days, the meals window edits meals. That keeps the month view calm and easy to scan.</p>
+      </div>
+      <div class="panel">
+        <h4>Main UX risk</h4>
+        <p>If each day has several meals, the calendar can become too vague unless each date gives a small hint that something is planned.</p>
+      </div>
+      <div class="panel">
+        <h4>Likely best behavior</h4>
+        <p>Click a date, highlight it, show breakfast/lunch/dinner slots on the right, then choose meals from a reusable meal library below.</p>
+      </div>
+    </div>
+  </div>
+</div>
